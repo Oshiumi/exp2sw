@@ -79,9 +79,10 @@ class ExpressionAdd extends CParseRule {
 	public void semanticCheck(CParseContext pcx) throws FatalErrorException {
 		// 足し算の型計算規則
 		final int s[][] = {
-		//		T_err			T_int
-			{	CType.T_err,	CType.T_err },	// T_err
-			{	CType.T_err,	CType.T_int },	// T_int
+		//		T_err			T_int			T_pint
+			{	CType.T_err,	CType.T_err,	CType.T_err },	// T_err
+			{	CType.T_err,	CType.T_int,	CType.T_pint },	// T_int
+			{	CType.T_err,	CType.T_pint,	CType.T_err },	// T_pint
 		};
 		int lt = 0, rt = 0;
 		boolean lc = false, rc = false;
@@ -145,9 +146,10 @@ class ExpressionSub extends CParseRule {
 	public void semanticCheck(CParseContext pcx) throws FatalErrorException {
 		// 引き算の型計算規則
 		final int s[][] = {
-		//		T_err			T_int
-			{	CType.T_err,	CType.T_err },	// T_err
-			{	CType.T_err,	CType.T_int },	// T_int
+		//		T_err			T_int			T_pint
+			{	CType.T_err,	CType.T_err,	CType.T_err},	// T_err
+			{	CType.T_err,	CType.T_int,	CType.T_err},	// T_int
+			{	CType.T_err,	CType.T_pint,	CType.T_int},	// T_pint
 		};
 		int lt = 0, rt = 0;
 		boolean lc = false, rc = false;
@@ -167,7 +169,7 @@ class ExpressionSub extends CParseRule {
 		}
 		int nt = s[lt][rt];						// 規則による型計算
 		if (nt == CType.T_err) {
-			pcx.fatalError(sub.toExplainString() + "左辺の型[" + left.getCType().toString() + "]と右辺の型[" + right.getCType().toString() + "]は足せません");
+			pcx.fatalError(sub.toExplainString() + "左辺の型[" + left.getCType().toString() + "]と右辺の型[" + right.getCType().toString() + "]は引けません");
 		}
 		this.setCType(CType.getCType(nt));
 		this.setConstant(lc && rc);				// -の左右両方が定数のときだけ定数

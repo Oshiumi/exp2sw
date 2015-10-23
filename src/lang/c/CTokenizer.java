@@ -65,6 +65,7 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 		CToken tk = null;
 		char ch;
 		int  startCol = colNo;
+		int	 bitCount = 0;
 		StringBuffer text = new StringBuffer();
 
 		int state = 0;
@@ -78,9 +79,30 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					startCol = colNo - 1;
 					state = 1;
 				} else if (ch >= '0' && ch <= '9') {
+					bitCount = 0;
 					startCol = colNo - 1;
 					text.append(ch);
-					state = 3;
+					bitCount++;
+					if(ch == '0'){
+						ch = readChar();
+						if(ch >= '0' && ch <= '7'){
+							bitCount = 1;
+							text.append(ch);
+							state = 12;
+						}else if(ch == '8' || ch == '9'){
+							text.append(ch);
+							state = 2;
+						}else if(ch == 'x' || ch == 'X'){
+							bitCount = 0;
+							text.append(ch);
+							state = 13;
+						}else{
+							backChar(ch);
+							state = 4;
+						}
+					}else{
+						state = 3;
+					}
 				} else if (ch == '+') {
 					startCol = colNo - 1;
 					text.append(ch);
@@ -114,15 +136,27 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 			case 3:					// 数（10進数）の開始
 				ch = readChar();
 				if (ch >= '0' && ch <= '9') {
+					bitCount++;
 					text.append(ch);
 				} else {
 					backChar(ch);
 					state = 4;
 				}
+				
+				if(bitCount >= 10){
+					state = 2;
+				}
+				
 				break;
 			case 4:					// 数の終わり
-				tk = new CToken(CToken.TK_NUM, lineNo, startCol, text.toString());
-				accept = true;
+				int num = Integer.decode(text.toString()).intValue();
+				
+				if(num < -32767 || 65535 < num){
+					state = 2;
+				}else{
+					tk = new CToken(CToken.TK_NUM, lineNo, startCol, text.toString());
+					accept = true;
+				}
 				break;
 			case 5:					// +を読んだ
 				tk = new CToken(CToken.TK_PLUS, lineNo, startCol, "+");
@@ -176,6 +210,39 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 			case 11:					// &を読んだ
 				tk = new CToken(CToken.TK_AMP, lineNo, startCol, "&");
 				accept = true;
+				break;
+			case 12:					// 8進数の開始
+				ch = readChar();
+				if(ch >= '0' && ch <= '7'){
+					bitCount++;
+					text.append(ch);
+				}else{
+					backChar(ch);
+					state = 4;
+				}
+				
+				if(bitCount >= 11){
+					state = 2;
+				}
+				break;
+			case 13:					// 16進数の開始
+				ch = readChar();
+				
+				if((ch >= '0' && ch <= '9')	|| (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F')){
+					bitCount++;
+					text.append(ch);
+				}else{
+					if(bitCount == 0){
+						state = 2;
+					}else{
+						backChar(ch);
+						state = 4;
+					}
+				}
+				
+				if(bitCount >= 5){
+					state = 2;
+				}
 				break;
 			}
 		}
