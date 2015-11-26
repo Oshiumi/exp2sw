@@ -119,6 +119,18 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					startCol = colNo - 1;
 					text.append(ch);
 					state = 11;	
+				} else if (ch == '*') {
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 14;	
+				} else if (ch == '(') {
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 15;	
+				} else if (ch == ')') {
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 16;	
 				} else {			// ヘンな文字を読んだ
 					startCol = colNo - 1;
 					text.append(ch);
@@ -172,8 +184,10 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					state = 8;
 				}else if(ch == '/'){
 					state = 9;
-				}else{			//　今はとりあえず/の後に数字が入ってもエラー（除算の際に修正が必要）
-					state = 2;
+				}else{			//　除算
+					backChar(ch);
+					tk = new CToken(CToken.TK_DIV, lineNo, startCol, "/");
+					accept = true;
 				}
 				break;
 			case 8:					// /の後に*を読んだ
@@ -243,6 +257,18 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 				if(bitCount >= 5){
 					state = 2;
 				}
+				break;
+			case 14:					// *を呼んだ
+				tk = new CToken(CToken.TK_MULT, lineNo, startCol, "*");
+				accept = true;
+				break;
+			case 15:
+				tk = new CToken(CToken.TK_LPAR, lineNo, startCol, "(");
+				accept = true;
+				break;
+			case 16:
+				tk = new CToken(CToken.TK_RPAR, lineNo, startCol, ")");
+				accept = true;
 				break;
 			}
 		}
