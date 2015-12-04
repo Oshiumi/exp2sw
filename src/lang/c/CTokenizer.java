@@ -103,7 +103,11 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					}else{
 						state = 3;
 					}
-				} else if (ch == '+') {
+				}else if((ch >= 'a' && ch <= 'x') || (ch >= 'A' && ch <= 'X') ){ 
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 19;
+				}else if (ch == '+') {
 					startCol = colNo - 1;
 					text.append(ch);
 					state = 5;
@@ -131,6 +135,14 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					startCol = colNo - 1;
 					text.append(ch);
 					state = 16;	
+				} else if (ch == '[') {
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 17;	
+				} else if (ch == ']') {
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 18;		
 				} else {			// ヘンな文字を読んだ
 					startCol = colNo - 1;
 					text.append(ch);
@@ -268,6 +280,28 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 				break;
 			case 16:
 				tk = new CToken(CToken.TK_RPAR, lineNo, startCol, ")");
+				accept = true;
+				break;
+			case 17:
+				tk = new CToken(CToken.TK_LBRA, lineNo, startCol, "[");
+				accept = true;
+				break;
+			case 18:
+				tk = new CToken(CToken.TK_RBRA, lineNo, startCol, "]");
+				accept = true;
+				break;
+			case 19:
+				ch = readChar();
+				if (ch >= '0' && ch <= '9' || ch >= 'a' && ch <= 'x' || ch >= 'A' && ch <= 'X') {
+					text.append(ch);
+				} else {
+					backChar(ch);
+					state = 20;
+				}
+				break;
+			case 20:
+				String str = text.toString(); 
+				tk = new CToken(CToken.TK_IDENT, lineNo, startCol, str);
 				accept = true;
 				break;
 			}

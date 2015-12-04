@@ -6,7 +6,7 @@ import lang.*;
 import lang.c.*;
 
 public class unsignedFactor extends CParseRule {
-	// unsignedFactor ::= FactorAmp | number | LPAR expression RPAR
+	// unsignedFactor ::= FactorAmp | number | LPAR expression RPAR | addressToValue
 	private CParseRule number;
 
 	public unsignedFactor(CParseContext pcx) {
@@ -14,7 +14,7 @@ public class unsignedFactor extends CParseRule {
 
 	public static boolean isFirst(CToken tk) {
 		return Number.isFirst(tk) || FactorAmp.isFirst(tk)
-				|| tk.getType() == CToken.TK_LPAR;
+				|| tk.getType() == CToken.TK_LPAR || AddressToValue.isFirst(tk);
 	}
 
 	public void parse(CParseContext pcx) throws FatalErrorException {
@@ -37,6 +37,9 @@ public class unsignedFactor extends CParseRule {
 			number.parse(pcx);
 		}else if(FactorAmp.isFirst(tk)){
 			number = new FactorAmp(pcx);
+			number.parse(pcx);
+		}else if(AddressToValue.isFirst(tk)){
+			number = new AddressToValue(pcx);
 			number.parse(pcx);
 		}
 	}
