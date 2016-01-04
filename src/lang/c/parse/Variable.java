@@ -37,8 +37,7 @@ public class Variable extends CParseRule {
 			ident.semanticCheck(pcx);
 			setCType(ident.getCType());
 			setConstant(ident.isConstant());
-		}
-		if (array != null) {
+		}else if (array != null) {
 			if (ident.getCType() == CType.getCType(CType.T_aint)) {
 				array.semanticCheck(pcx);
 				setCType(CType.getCType(CType.T_int));
