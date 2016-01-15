@@ -37,15 +37,14 @@ public class Variable extends CParseRule {
 			ident.semanticCheck(pcx);
 			setCType(ident.getCType());
 			setConstant(ident.isConstant());
-		}else if (array != null) {
+		}
+		if (array != null) {
 			if (ident.getCType() == CType.getCType(CType.T_aint)) {
 				array.semanticCheck(pcx);
-				setCType(CType.getCType(CType.T_int));
-				setConstant(array.isConstant());
+				this.setCType(CType.getCType(CType.T_int));
 			} else if (ident.getCType() == CType.getCType(CType.T_apint)) {
 				array.semanticCheck(pcx);
-				setCType(CType.getCType(CType.T_pint));
-				setConstant(array.isConstant());
+				this.setCType(CType.getCType(CType.T_pint));
 			} else {
 				pcx.fatalError("Identが配列の場合は型がint[]またはint*[]でなければいけません");
 			}

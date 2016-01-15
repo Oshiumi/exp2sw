@@ -14,6 +14,9 @@ public class CToken extends SimpleToken {
 	public static final int TK_RBRA			= 10;				// ]
 	public static final	int TK_ASSIGN		= 11;				// =
 	public static final int TK_SEMI			= 12;				// ;
+	public static final int TK_INT			= 13;				// int
+	public static final int TK_CONST		= 14;				// const
+	public static final int TK_COMMA		= 15;				// ,
 	
 	
 

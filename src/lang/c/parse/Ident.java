@@ -8,6 +8,7 @@ import lang.c.*;
 public class Ident extends CParseRule {
 	// variable ::= ident [ array ]
 	private CToken ident;
+	private CSymbolTableEntry symbol;
 	public Ident(CParseContext pcx) {
 	}
 	public static boolean isFirst(CToken tk) {	
@@ -19,20 +20,24 @@ public class Ident extends CParseRule {
 		CToken tk = ct.getCurrentToken(pcx);
 		
 		ident = tk;
+		symbol = pcx.getTable().search(tk.getText());
+		if(symbol == null){
+			pcx.fatalError("変数が宣言されていません");
+		}
+		
 		tk = ct.getNextToken(pcx);
 	}
 
 	public void semanticCheck(CParseContext pcx) throws FatalErrorException {
-//		this.setCType(CType.getCType(CType.T_pint));
-		this.setCType(CType.getCType(CType.T_int));
-		this.setConstant(false);
+		this.setCType(symbol.getType());
+		this.setConstant(symbol.getConstp());
 	}
 
 	public void codeGen(CParseContext pcx) throws FatalErrorException {
 		PrintStream o = pcx.getIOContext().getOutStream();
 		o.println(";;; ident starts");
 		if (ident != null) {
-		o.println("\tMOV\t#" + ident.getText() + ", (R6)+\t; Ident: 変数アドレスを積む<"	+ ident.toExplainString() + ">");
+			o.println("\tMOV\t#" + ident.getText() + ", (R6)+\t; Ident: 変数アドレスを積む<"	+ ident.toExplainString() + ">");
 		}
 		o.println(";;; ident completes");
 	}

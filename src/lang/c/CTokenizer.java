@@ -150,7 +150,11 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 				} else if (ch == ';') {
 					startCol = colNo - 1;
 					text.append(ch);
-					state = 22;		
+					state = 22;	
+				} else if (ch == ',') {
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 23;	
 				} else {			// ヘンな文字を読んだ
 					startCol = colNo - 1;
 					text.append(ch);
@@ -307,9 +311,11 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					state = 20;
 				}
 				break;
-			case 20:
+			case 20:	// 文字列
 				String str = text.toString(); 
-				tk = new CToken(CToken.TK_IDENT, lineNo, startCol, str);
+				Integer i = (Integer)rule.get(str);
+				// 切り出した字句が登録済みキーワードかどうかはi がnull かどうかで判定する
+				tk = new CToken(((i == null) ? CToken.TK_IDENT : i.intValue()), lineNo, startCol, str);
 				accept = true;
 				break;
 			case 21:
@@ -318,6 +324,10 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 				break;
 			case 22:
 				tk = new CToken(CToken.TK_SEMI, lineNo, startCol, ";");
+				accept = true;
+				break;
+			case 23:
+				tk = new CToken(CToken.TK_COMMA, lineNo, startCol, ",");
 				accept = true;
 				break;
 			}

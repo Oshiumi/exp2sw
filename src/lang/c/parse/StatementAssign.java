@@ -45,7 +45,7 @@ public class StatementAssign extends CParseRule {
 			primary.semanticCheck(pcx);
 			expression.semanticCheck(pcx);
 			if(primary.getCType() != expression.getCType()){
-				pcx.fatalError("変数と値の方が違います。");
+				pcx.fatalError("変数と値の型が違います。");
 			}
 			if(primary.isConstant()){
 				pcx.fatalError("定数には代入できません");
